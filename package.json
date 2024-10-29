@@ -11,8 +11,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@mantine/core": "^7.13.4",
     "@mantine/hooks": "^7.13.4",
+    "@phosphor-icons/react": "^2.1.7",
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",
     "isbot": "^4",
