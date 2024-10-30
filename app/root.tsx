@@ -2,6 +2,7 @@ import '@mantine/core/styles.css';
 
 import { MantineProvider } from '@mantine/core';
 
+import { LiveblocksProvider } from '@liveblocks/react';
 import type { LinksFunction } from "@remix-run/node";
 import {
   Links,
@@ -44,9 +45,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <MantineProvider forceColorScheme='light'>
-      <Outlet />
-    </MantineProvider>
+    <LiveblocksProvider publicApiKey={"pk_prod__gAdle6JW7URzT9EEK83hJZ9Ad0Yc0JrjG5TsOyxfz7XG3CLnA4xX7xzPkfL4_xu"}>
+      <MantineProvider forceColorScheme='light'>
+        <Outlet />
+      </MantineProvider>
+    </LiveblocksProvider>
   );
 }
 
