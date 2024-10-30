@@ -1,6 +1,7 @@
 // Define Liveblocks types for your application
 
 import { LiveList } from "@liveblocks/client";
+import { Shape } from "~/types";
 
 // https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
 declare global {
@@ -15,7 +16,7 @@ declare global {
     Storage: {
       // Example, a conflict-free list
       // animals: LiveList<string>;
-      rectangles: LiveList<{ id: string, top: number; left: number }>;
+      shapes: LiveList<Shape>;
     };
 
     // Custom user info set when authenticating with a secret key
