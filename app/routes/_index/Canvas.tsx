@@ -1,7 +1,7 @@
 import { DndContext } from "@dnd-kit/core";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useMutation, useStorage } from "@liveblocks/react";
-import { Paper } from "@mantine/core";
+import { LoadingOverlay, Paper } from "@mantine/core";
 import { RectangleShape } from "~/routes/_index/RectangleShape";
 import { Position } from "~/types";
 import { useWhiteboardStore } from "./store";
@@ -28,8 +28,8 @@ export function Canvas() {
     return (
         <Paper withBorder shadow="sm" h="100%" radius="sm" pos="relative">
             <DndContext
-                modifiers={[restrictToParentElement]}                
-                onDragEnd={() => {                    
+                modifiers={[restrictToParentElement]}
+                onDragEnd={() => {
                     moveShapes(selection, moveDelta)
                     resetMoveDelta()
                 }}
@@ -49,6 +49,7 @@ export function Canvas() {
                         return null
                     }
                 })}
+                <LoadingOverlay visible={!shapes} loaderProps={{ type: 'dots', size: 'lg' }} />
             </DndContext>
         </Paper>
     )
