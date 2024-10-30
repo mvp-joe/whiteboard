@@ -1,4 +1,5 @@
 import { DndContext } from "@dnd-kit/core";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { useMutation, useStorage } from "@liveblocks/react";
 import { Paper } from "@mantine/core";
 import { RectangleShape } from "~/routes/_index/RectangleShape";
@@ -13,24 +14,25 @@ export function Canvas() {
 
     const shapes = useStorage((r) => r.shapes)
 
-    const moveShapes = useMutation((c, selected: string[], moveDelta: Position) => {        
-        const shapes = c.storage.get('shapes')        
+    const moveShapes = useMutation((c, selected: string[], moveDelta: Position) => {
+        const shapes = c.storage.get('shapes')
         if (shapes) {
             shapes.forEach((shape, index) => {
                 if (selected.includes(shape.id)) {
                     shapes.set(index, { ...shape, top: shape.top + moveDelta.y, left: shape.left + moveDelta.x })
                 }
             })
-        }        
-    }, [])    
+        }
+    }, [])
 
     return (
         <Paper withBorder shadow="sm" h="100%" radius="sm" pos="relative">
-            <DndContext  onDragEnd={({ delta }) => {
-                console.log('onDragEnd', delta, moveDelta)
-                moveShapes(selection, moveDelta)              
-                resetMoveDelta()                
-            }}
+            <DndContext
+                modifiers={[restrictToParentElement]}                
+                onDragEnd={() => {                    
+                    moveShapes(selection, moveDelta)
+                    resetMoveDelta()
+                }}
                 onDragMove={({ delta }) => {
                     console.log('onDragMove', delta)
                     setMoveDelta(delta)
@@ -38,7 +40,7 @@ export function Canvas() {
                 onDragCancel={() => {
                     resetMoveDelta()
                 }}
-            >             
+            >
                 {shapes && shapes.map((shape) => {
                     const selected = selection.includes(shape.id)
                     if (shape.type === 'rectangle') {

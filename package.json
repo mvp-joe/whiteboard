@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@liveblocks/client": "^2.10.2",
     "@liveblocks/react": "^2.10.2",
