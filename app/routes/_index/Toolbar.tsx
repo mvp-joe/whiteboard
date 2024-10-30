@@ -1,6 +1,6 @@
 import { useCanRedo, useCanUndo, useMutation, useRedo, useUndo } from "@liveblocks/react";
 import { ActionIcon, Divider, Flex, Group, Paper, Tooltip } from "@mantine/core";
-import { ArrowClockwise, ArrowCounterClockwise, Eraser, Rectangle } from "@phosphor-icons/react";
+import { ArrowClockwise, ArrowCounterClockwise, Circle, Eraser, Rectangle } from "@phosphor-icons/react";
 import { v4 as uuid } from 'uuid';
 import { useWhiteboardStore } from "~/routes/_index/store";
 
@@ -21,12 +21,21 @@ export function Toolbar() {
         select(id, false)
     }, [])
 
+    const addOval = useMutation((c) => {
+        const id = uuid()
+        c.storage.get('shapes').push({ id: id, type: 'oval', top: 20, left: 20, width: 100, height: 100 })
+        select(id, false)
+    }, [])
+
     return (
         <Flex align="center" justify="center">
             <Paper withBorder radius="md" shadow="md">
                 <Group p={6} gap="xs" >
                     <Tooltip label="Add Rectangle">
                         <ActionIcon variant="transparent" size="lg" onClick={addRectangle}><Rectangle size={20} /></ActionIcon>
+                    </Tooltip>
+                    <Tooltip label="Add Oval">
+                        <ActionIcon variant="transparent" size="lg" onClick={addOval}><Circle size={20} /></ActionIcon>
                     </Tooltip>
                     <Divider orientation="vertical" />
                     <Tooltip label="Erase All">

@@ -9,6 +9,7 @@ type SelectionBoxProps = {
 }
 
 export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBoxProps) {
+
     if (!selectedShapes || selectedShapes.length === 0) {
         return null
     }
