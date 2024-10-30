@@ -1,6 +1,6 @@
 export type Shape = {
     id: string
-    type: 'rectangle' | 'circle'
+    type: 'rectangle' | 'oval'
     top: number
     left: number
     width: number
