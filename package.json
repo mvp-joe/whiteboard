@@ -13,6 +13,8 @@
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@liveblocks/client": "^2.10.2",
+    "@liveblocks/react": "^2.10.2",
     "@mantine/core": "^7.13.4",
     "@mantine/hooks": "^7.13.4",
     "@phosphor-icons/react": "^2.1.7",
