@@ -13,7 +13,7 @@ function moveShapes(shapes: LiveList<Shape> | undefined, ids: string[], moveDelt
     }
 }
 
-function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], sizeDelta: BoundingBox) {
+function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], sizeDelta: BoundingBox) {    
     if (shapes) {
         shapes.forEach((shape, index) => {
             if (ids.includes(shape.id)) {
@@ -21,7 +21,23 @@ function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], sizeDe
                 shapes.set(index, resizedShape)
             }
         })
+    }    
+}
+
+function duplicateShapes(shapes: LiveList<Shape> | undefined, ids: string[]) {
+    const newIds: string[] = []
+    if (shapes) {
+        shapes.forEach((shape) => {                        
+            if (ids.includes(shape.id)) {
+                const newId = uuid()
+                newIds.push(newId)
+                const top = shape.top + 20
+                const left = shape.left + 20                
+                shapes.push({ ...shape, top, left, id: newId })            
+            }
+        })
     }
+    return newIds
 }
 
 function deleteShapes(shapes: LiveList<Shape> | undefined, ids: string[]) {
@@ -61,4 +77,4 @@ function findUniqueStartingPosition(shapes: LiveList<Shape>) {
     return { top, left }
 }
 
-export default { moveShapes, deleteShapes, deleteAll, addRectangle, addOval, resizeShapes }
+export default { moveShapes, deleteShapes, deleteAll, addRectangle, addOval, resizeShapes, duplicateShapes }

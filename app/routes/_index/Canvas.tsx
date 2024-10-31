@@ -16,6 +16,7 @@ export function Canvas() {
     const setSizeDelta = useWhiteboardStore(state => state.setSizeDelta)
     const resetSizeDelta = useWhiteboardStore(state => state.resetSizeDelta)
     const deselectAll = useWhiteboardStore(state => state.deselectAll)
+    const select = useWhiteboardStore(state => state.select)
 
     const sizeDelta = useWhiteboardStore(state => state.sizeDelta)
     const moveDelta = useWhiteboardStore(state => state.moveDelta)
@@ -33,7 +34,8 @@ export function Canvas() {
         ['Backspace', deleteSelectedShapes],
         ['Delete', deleteSelectedShapes],
         ['mod+z', undo],
-        ['mod+shift+z', redo]
+        ['mod+shift+z', redo],
+        ['mod+d', duplicateSelectedShapes],
     ])
 
     const moveShapes = useMutation((c, ids: string[], moveDelta: Position) => {
@@ -45,8 +47,15 @@ export function Canvas() {
     }, [])
 
     const deleteShapes = useMutation((c, ids: string[]) => {
-        mut.deleteShapes(c.storage.get('shapes'), ids)        
+        mut.deleteShapes(c.storage.get('shapes'), ids)                
     }, [])
+
+    const duplicateShapes = useMutation((c, ids: string[]) => {
+        if (!ids || ids.length === 0) return
+        const newIds = mut.duplicateShapes(c.storage.get('shapes'), ids)          
+        select(newIds[0], false)   
+    }, [])
+
 
     const pointerSensor = useSensor(PointerSensor, {
         activationConstraint: {
@@ -143,4 +152,8 @@ export function Canvas() {
         deleteShapes(selection)
         deselectAll()
     }    
+
+    function duplicateSelectedShapes() {
+        duplicateShapes(selection)
+    }
 }
