@@ -56,7 +56,6 @@ export function Canvas() {
         select(newIds[0], false)   
     }, [])
 
-
     const pointerSensor = useSensor(PointerSensor, {
         activationConstraint: {
             distance: 10
