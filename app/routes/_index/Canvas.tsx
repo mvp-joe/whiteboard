@@ -119,6 +119,14 @@ export function Canvas() {
                 setSizeDelta({ left: x, bottom: y, top: 0, right: 0 })
             } else if (location === 'bottom-right') {
                 setSizeDelta({ right: x, bottom: y, top: 0, left: 0 })
+            } else if (location === 'top') {
+                setSizeDelta({ top: y, bottom: 0, left: 0, right: 0 })
+            } else if (location === 'left') {
+                setSizeDelta({ left: x, right: 0, top: 0, bottom: 0 })
+            } else if (location === 'bottom') {
+                setSizeDelta({ bottom: y, top: 0, left: 0, right: 0 })
+            } else if (location === 'right') {
+                setSizeDelta({ right: x, left: 0, top: 0, bottom: 0 })
             }
         } else {
             setMoveDelta(delta)

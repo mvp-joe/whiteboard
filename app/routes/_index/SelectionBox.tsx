@@ -52,10 +52,14 @@ export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBox
         >
             {!isDragging && (
                 <>
-                    <ResizeHandle location="top-left" />
-                    <ResizeHandle location="top-right" />
-                    <ResizeHandle location="bottom-left" />
-                    <ResizeHandle location="bottom-right" />
+                    <ResizeHandle location="top-left" width={width} height={height} />
+                    <ResizeHandle location="top-right" width={width} height={height} />
+                    <ResizeHandle location="bottom-left" width={width} height={height} />
+                    <ResizeHandle location="bottom-right" width={width} height={height} />
+                    <ResizeHandle location="top" width={width} height={height} />
+                    <ResizeHandle location="left" width={width} height={height} />
+                    <ResizeHandle location="bottom" width={width} height={height} />
+                    <ResizeHandle location="right" width={width} height={height} />
                 </>
             )}
 
@@ -64,10 +68,14 @@ export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBox
 }
 
 type ResizeHandleProps = {
-    location: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    location: Location
+    width: number
+    height: number
 }
 
-function ResizeHandle({ location }: ResizeHandleProps) {
+type Location = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'
+
+function ResizeHandle({ location, width, height }: ResizeHandleProps) {
     const { attributes, listeners, setNodeRef } = useDraggable({
         id: 'resize-handle:' + location,
         attributes: {
@@ -78,12 +86,7 @@ function ResizeHandle({ location }: ResizeHandleProps) {
         }
     });
 
-    const cursor = location === 'top-left' || location === 'bottom-right' ? 'nwse-resize' : 'nesw-resize';
-    const bottom = location === 'bottom-left' || location === 'bottom-right' ? -5 : undefined;
-    const right = location === 'top-right' || location === 'bottom-right' ? -5 : undefined;
-    const top = location === 'top-left' || location === 'top-right' ? -5 : undefined;
-    const left = location === 'top-left' || location === 'bottom-left' ? -5 :
-        location === 'top-right' || location === 'bottom-right' ? undefined : undefined;
+    const left = location === 'top-left' || location === 'bottom-left' || location === 'left' ? -5 : undefined;
 
     return (
         <Box
@@ -91,17 +94,82 @@ function ResizeHandle({ location }: ResizeHandleProps) {
             ref={setNodeRef}
             style={{
                 pointerEvents: 'all',
-                top,
+                top: top(location, height),
                 left,
-                bottom,
-                right,
+                bottom: bottom(location, height),
+                right: right(location, width),
                 width: 10,
                 height: 10,
-                cursor: cursor,
+                cursor: cursor(location),
             }}
             bg="blue.4"
             {...attributes}
             {...listeners}
         />
     )
+}
+
+function top(location: Location, height: number) {
+    switch (location) {
+        case 'top-left':
+        case 'top-right':
+        case 'top':
+            return -5
+        case 'bottom-left':
+        case 'bottom-right':
+        case 'bottom':
+            return undefined
+        case 'left':
+        case 'right':
+            return height / 2 - 5
+    }
+}
+
+function bottom(location: Location, height: number) {
+    switch (location) {
+        case 'top-left':
+        case 'top-right':
+        case 'top':
+            return undefined
+        case 'bottom-left':
+        case 'bottom-right':
+        case 'bottom':
+            return -5
+        case 'left':
+        case 'right':
+            return height / 2 - 5
+    }
+}
+
+function right(location: Location, width: number) {
+    switch (location) {
+        case 'top-left':
+        case 'bottom-left':
+        case 'left':
+            return undefined
+        case 'top-right':
+        case 'bottom-right':
+        case 'right':
+            return -5
+        case 'top':
+        case 'bottom':
+            return width / 2 - 5
+    }
+}
+
+function cursor(location: Location) {
+    switch (location) {
+        case 'top-left':
+        case 'bottom-right':
+            return 'nwse-resize'
+        case 'top-right':
+        case 'bottom-left':
+            return 'nesw-resize'
+        case 'top':
+        case 'bottom':
+            return 'ns-resize'
+        case 'left':
+        case 'right':
+            return 'ew-resize'
+    }
 }
