@@ -1,11 +1,13 @@
 export type Shape = {
     id: string
-    type: 'rectangle' | 'oval'
+    type: ShapeType
     top: number
     left: number
     width: number
     height: number
 }
+
+export type ShapeType = 'rectangle' | 'oval'
 
 export interface ShapeProps {
     shape: Shape

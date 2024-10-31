@@ -1,9 +1,11 @@
 import { DndContext, DragMoveEvent, PointerSensor, useSensor } from "@dnd-kit/core";
 import { restrictToParentElement } from "@dnd-kit/modifiers";
-import { useMutation, useStorage } from "@liveblocks/react";
+import { useMutation, useRedo, useStorage, useUndo } from "@liveblocks/react";
 import { LoadingOverlay, Paper } from "@mantine/core";
+import { useHotkeys } from "@mantine/hooks";
 import { useState } from "react";
 import { Position } from "~/types";
+import mut from './liveblock-mutations';
 import { SelectionBox } from "./SelectionBox";
 import { OvalShape, RectangleShape } from "./Shapes";
 import { useWhiteboardStore } from "./store";
@@ -19,15 +21,22 @@ export function Canvas() {
     const shapes = useStorage((r) => r.shapes)
     const selectedShapes = shapes?.filter((shape) => selection.includes(shape.id))
 
-    const moveShapes = useMutation((c, selected: string[], moveDelta: Position) => {
-        const shapes = c.storage.get('shapes')
-        if (shapes) {
-            shapes.forEach((shape, index) => {
-                if (selected.includes(shape.id)) {
-                    shapes.set(index, { ...shape, top: shape.top + moveDelta.y, left: shape.left + moveDelta.x })
-                }
-            })
-        }
+    const undo = useUndo()
+    const redo = useRedo()
+
+    useHotkeys([
+        ['Backspace', deleteSelectedShapes],
+        ['Delete', deleteSelectedShapes],
+        ['mod+z', undo],
+        ['mod+shift+z', redo]
+    ])
+
+    const moveShapes = useMutation((c, ids: string[], moveDelta: Position) => {
+        mut.moveShapes(c.storage.get('shapes'), ids, moveDelta)        
+    }, [])
+
+    const deleteShapes = useMutation((c, ids: string[]) => {
+        mut.deleteShapes(c.storage.get('shapes'), ids)        
     }, [])
 
     const pointerSensor = useSensor(PointerSensor, {
@@ -89,4 +98,9 @@ export function Canvas() {
         resetMoveDelta()
         setIsDragging(false)
     }
+
+    function deleteSelectedShapes() {                
+        deleteShapes(selection)
+        deselectAll()
+    }    
 }

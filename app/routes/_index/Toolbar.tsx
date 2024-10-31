@@ -1,30 +1,36 @@
-import { useCanRedo, useCanUndo, useMutation, useRedo, useUndo } from "@liveblocks/react";
+import { useCanRedo, useCanUndo, useMutation, useRedo, useStorage, useUndo } from "@liveblocks/react";
 import { ActionIcon, Divider, Flex, Group, Paper, Tooltip } from "@mantine/core";
-import { ArrowClockwise, ArrowCounterClockwise, Circle, Eraser, Rectangle } from "@phosphor-icons/react";
-import { v4 as uuid } from 'uuid';
+import { ArrowClockwise, ArrowCounterClockwise, Circle, Eraser, Rectangle, Trash } from "@phosphor-icons/react";
 import { useWhiteboardStore } from "~/routes/_index/store";
+import mut from './liveblock-mutations';
 
 export function Toolbar() {
     const canUndo = useCanUndo()
     const undo = useUndo()
-    const canRedo = useCanRedo()
+    const canRedo = useCanRedo()           
     const redo = useRedo()
     const select = useWhiteboardStore(s => s.select)
+    const selection = useWhiteboardStore(s => s.selection)
+    const shapes = useStorage((r) => r.shapes)
+    const selectedShapes = shapes?.filter((shape) => selection.includes(shape.id))
 
-    const eraseAll = useMutation((c) => {
-        c.storage.get('shapes').clear()
+    const deleteAll = useMutation((c) => {
+        mut.deleteAll(c.storage.get('shapes'))        
     }, [])
 
     const addRectangle = useMutation((c) => {
-        const id = uuid()
-        c.storage.get('shapes').push({ id: id, type: 'rectangle', top: 20, left: 20, width: 100, height: 100 })
-        select(id, false)
+        console.log('add rectangle')
+        const id = mut.addRectangle(c.storage.get('shapes'))
+        select(id, false)        
     }, [])
 
     const addOval = useMutation((c) => {
-        const id = uuid()
-        c.storage.get('shapes').push({ id: id, type: 'oval', top: 20, left: 20, width: 100, height: 100 })
+        const id = mut.addOval(c.storage.get('shapes'))        
         select(id, false)
+    }, [])
+
+    const deleteShapes = useMutation((c, ids: string[]) => {
+        mut.deleteShapes(c.storage.get('shapes'), ids)        
     }, [])
 
     return (
@@ -38,8 +44,11 @@ export function Toolbar() {
                         <ActionIcon variant="transparent" size="lg" onClick={addOval}><Circle size={20} /></ActionIcon>
                     </Tooltip>
                     <Divider orientation="vertical" />
-                    <Tooltip label="Erase All">
-                        <ActionIcon variant="transparent" size="lg" onClick={eraseAll}><Eraser size={22} /></ActionIcon>
+                    <Tooltip label="Delete Selected">
+                        <ActionIcon variant="transparent" size="lg" disabled={!selectedShapes || selectedShapes.length == 0} onClick={deleteSelected}><Trash size={20} /></ActionIcon>
+                    </Tooltip>
+                    <Tooltip label="Delete All">
+                        <ActionIcon variant="transparent" size="lg" onClick={deleteAll}><Eraser size={22} /></ActionIcon>
                     </Tooltip>
                     <Divider orientation="vertical" />
                     <Tooltip label="Undo">
@@ -52,4 +61,8 @@ export function Toolbar() {
             </Paper>
         </Flex>
     )
+    
+    function deleteSelected() {
+        deleteShapes(selection)
+    }
 }
