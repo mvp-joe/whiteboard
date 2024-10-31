@@ -4,7 +4,7 @@ import { useMutation, useRedo, useStorage, useUndo } from "@liveblocks/react";
 import { LoadingOverlay, Paper } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
 import { useState } from "react";
-import { Position } from "~/types";
+import { Delta, Position } from "~/types";
 import mut from './liveblock-mutations';
 import { SelectionBox } from "./SelectionBox";
 import { OvalShape, RectangleShape } from "./Shapes";
@@ -13,9 +13,14 @@ import { useWhiteboardStore } from "./store";
 export function Canvas() {
     const setMoveDelta = useWhiteboardStore(state => state.setMoveDelta)
     const resetMoveDelta = useWhiteboardStore(state => state.resetMoveDelta)
+    const setSizeDelta = useWhiteboardStore(state => state.setSizeDelta)
+    const resetSizeDelta = useWhiteboardStore(state => state.resetSizeDelta)
+    const deselectAll = useWhiteboardStore(state => state.deselectAll)
+
+    const sizeDelta = useWhiteboardStore(state => state.sizeDelta)
     const moveDelta = useWhiteboardStore(state => state.moveDelta)
     const selection = useWhiteboardStore(state => state.selection)    
-    const deselectAll = useWhiteboardStore(state => state.deselectAll)
+    
     const [isDragging, setIsDragging] = useState(false)
 
     const shapes = useStorage((r) => r.shapes)
@@ -45,6 +50,11 @@ export function Canvas() {
         }
     })
      
+    const delta: Delta = {
+        pos: moveDelta,
+        size: sizeDelta,
+    }
+
     return (
         <Paper withBorder shadow="sm" h="100%" radius="sm" pos="relative" onClick={handleCanvasClick} >
             <DndContext
@@ -59,15 +69,15 @@ export function Canvas() {
                 {shapes && shapes.map((shape) => {
                     const selected = selection.includes(shape.id)
                     if (shape.type === 'rectangle') {
-                        return <RectangleShape key={shape.id} shape={shape} delta={selected ? moveDelta : undefined} />
+                        return <RectangleShape key={shape.id} shape={shape} delta={selected ? delta : undefined} />
                     } else if (shape.type === 'oval') {
-                        return <OvalShape key={shape.id} shape={shape} delta={selected ? moveDelta : undefined} />
+                        return <OvalShape key={shape.id} shape={shape} delta={selected ? delta : undefined} />
                     } else {
                         return null
                     }
                 })}
                 
-                <SelectionBox selectedShapes={selectedShapes} delta={moveDelta} isDragging={isDragging} />
+                <SelectionBox selectedShapes={selectedShapes} delta={delta} isDragging={isDragging} />
                 
                 <LoadingOverlay visible={!shapes} loaderProps={{ type: 'dots', size: 'lg' }} />
             </DndContext>
@@ -87,15 +97,32 @@ export function Canvas() {
     function handleDragEnd() {
         moveShapes(selection, moveDelta)
         resetMoveDelta()
+        resetSizeDelta()
         setIsDragging(false)
     }
 
-    function handleDragMove({ delta }: DragMoveEvent) {
-        setMoveDelta(delta)
+    function handleDragMove({ delta, active }: DragMoveEvent) {
+        const id = active?.id.toString()
+        if (id && id.startsWith('resize-handle')) {            
+            const location = id.split(':').pop()
+            const { x, y } = delta
+            if (location === 'top-left') {
+                setSizeDelta({ left: x, top: y, bottom: 0, right: 0 })
+            } else if (location === 'top-right') {
+                setSizeDelta({ right: x, top: y, bottom: 0, left: 0 })
+            } else if (location === 'bottom-left') {
+                setSizeDelta({ left: x, bottom: y, top: 0, right: 0 })
+            } else if (location === 'bottom-right') {
+                setSizeDelta({ right: x, bottom: y, top: 0, left: 0 })
+            }
+        } else {
+            setMoveDelta(delta)
+        }
     }
 
     function handleDragCancel() {
         resetMoveDelta()
+        resetSizeDelta()
         setIsDragging(false)
     }
 

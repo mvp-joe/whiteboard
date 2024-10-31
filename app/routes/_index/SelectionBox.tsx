@@ -1,10 +1,12 @@
 
+import { useDraggable } from "@dnd-kit/core";
 import { Box } from "@mantine/core";
-import { Position, Shape } from "~/types";
+import { resizeShape } from "~/routes/_index/Shapes";
+import { Delta, Shape } from "~/types";
 
 type SelectionBoxProps = {
     selectedShapes?: Shape[]
-    delta: Position
+    delta: Delta
     isDragging?: boolean
 }
 
@@ -14,13 +16,27 @@ export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBox
         return null
     }
 
-    const top = Math.min(...selectedShapes.map((shape) => shape.top)) + delta.y
-    const left = Math.min(...selectedShapes.map((shape) => shape.left)) + delta.x
-    const bottom = Math.max(...selectedShapes.map((shape) => shape.top + shape.height)) + delta.y
-    const right = Math.max(...selectedShapes.map((shape) => shape.left + shape.width)) + delta.x
+    const pos = delta.pos
+    
+    // Calculate the bounding box of the selected shapes
+    const selectionBox = {
+        top: Math.min(...selectedShapes.map((shape) => shape.top)) + pos.y,
+        left: Math.min(...selectedShapes.map((shape) => shape.left)) + pos.x,
+        bottom: Math.max(...selectedShapes.map((shape) => shape.top + shape.height)) + pos.y,
+        right: Math.max(...selectedShapes.map((shape) => shape.left + shape.width)) + pos.x,
+    }
+    
+    // Apply the delta to the selection box
+    const resizedShape = resizeShape({
+        id: 'selection-box',
+        type: 'rectangle',
+        top: selectionBox.top,
+        left: selectionBox.left,
+        width: selectionBox.right - selectionBox.left,
+        height: selectionBox.bottom - selectionBox.top
+    }, delta)
 
-    const width = right - left
-    const height = bottom - top
+    const { top, left, width, height } = resizedShape
 
     return (
         <Box
@@ -52,15 +68,27 @@ type ResizeHandleProps = {
 }
 
 function ResizeHandle({ location }: ResizeHandleProps) {
+    const { attributes, listeners, setNodeRef } = useDraggable({
+        id: 'resize-handle:' + location,
+        attributes: {
+            role: 'resize-handle',            
+        },
+        data: {
+            location
+        }
+    });
+
     const cursor = location === 'top-left' || location === 'bottom-right' ? 'nwse-resize' : 'nesw-resize';
     const bottom = location === 'bottom-left' || location === 'bottom-right' ? -5 : undefined;
     const right = location === 'top-right' || location === 'bottom-right' ? -5 : undefined;
     const top = location === 'top-left' || location === 'top-right' ? -5 : undefined;
     const left = location === 'top-left' || location === 'bottom-left' ? -5 :
         location === 'top-right' || location === 'bottom-right' ? undefined : undefined;
+
     return (
         <Box
             pos="absolute"
+            ref={setNodeRef}
             style={{
                 pointerEvents: 'all',
                 top,
@@ -72,6 +100,8 @@ function ResizeHandle({ location }: ResizeHandleProps) {
                 cursor: cursor,
             }}
             bg="blue.4"
+            {...attributes}
+            {...listeners}
         />
     )
 }

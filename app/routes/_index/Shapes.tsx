@@ -2,49 +2,49 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from '@dnd-kit/utilities';
 import { Box, BoxProps, useMantineTheme } from "@mantine/core";
 import { PropsWithChildren } from "react";
-import { ShapeProps } from "~/types";
+import { Delta, Shape, ShapeProps } from "~/types";
 import { useWhiteboardStore } from "./store";
 
 export function RectangleShape({ shape, delta }: ShapeProps) {       
     return (        
-        <Shape
+        <ShapeBox
             shape={shape}
             delta={delta}            
             bd="1px solid gray.5"
             bg="gray.1"            
         >
-        </Shape>
+        </ShapeBox>
     )
 }
-
 
 export function OvalShape({ shape, delta }: ShapeProps) {    
     const theme = useMantineTheme()
     const fill = theme.colors.gray[1]
     const stroke = theme.colors.gray[5]
 
+    const resizedShape = resizeShape(shape, delta)
+    const width = Math.max(resizedShape.width, 0)
+    const height = Math.max(resizedShape.height, 0)
+
     return (        
-        <Shape
+        <ShapeBox
             shape={shape}
             delta={delta}           
         >
-            <svg width={shape.width} height={shape.height} viewBox={`0 0 ${shape.width} ${shape.height}`} style={{overflow: 'visible'}} xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx={shape.width / 2} cy={shape.height / 2} rx={shape.width / 2} ry={shape.height / 2} fill={fill} stroke={stroke} />
+            <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{overflow: 'visible'}} xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx={width / 2} cy={height / 2} rx={width / 2} ry={height / 2} fill={fill} stroke={stroke} />
             </svg>
-        </Shape>
+        </ShapeBox>
     )
 }
 
-interface ShapePropsWithBox extends ShapeProps, BoxProps, PropsWithChildren {
+interface ShapeBoxProps extends ShapeProps, BoxProps, PropsWithChildren {}
 
-}
-
-export function Shape({ shape, delta, children, ...rest }: ShapePropsWithBox) {
+export function ShapeBox({ shape, delta, children, ...rest }: ShapeBoxProps) {
     const select = useWhiteboardStore(s => s.select)
     const deselect = useWhiteboardStore(s => s.deselect)    
-    const selection = useWhiteboardStore(s => s.selection)
-    console.log('selection', selection)
-
+    const selection = useWhiteboardStore(s => s.selection)    
+    
     const { attributes, listeners, setNodeRef } = useDraggable({
         id: shape.id,
         attributes: {
@@ -52,15 +52,17 @@ export function Shape({ shape, delta, children, ...rest }: ShapePropsWithBox) {
         }
     });
 
+    const resizedShape = resizeShape(shape, delta)
+
     const style = {
-        top: shape.top,
-        left: shape.left,
-        width: shape.width,
-        height: shape.height,        
+        top: resizedShape.top,
+        left: resizedShape.left,
+        width: resizedShape.width,
+        height: resizedShape.height,   
         transform: delta ?
             CSS.Translate.toString({
-                x: delta.x,
-                y: delta.y,
+                x: delta.pos.x,
+                y: delta.pos.y,
                 scaleX: 1, scaleY: 1
             })
             : CSS.Translate.toString({
@@ -97,4 +99,14 @@ export function Shape({ shape, delta, children, ...rest }: ShapePropsWithBox) {
         }
         select(shape.id, e.shiftKey)
     }
+}
+
+export function resizeShape(shape: Shape, delta?: Delta) : Shape {
+    return delta ? {
+        ...shape,
+        top: shape.top + delta.size.top,
+        left: shape.left + delta.size.left,
+        width: shape.width + delta.size.right + (-1*delta.size.left),
+        height: shape.height + delta.size.bottom +(-1*delta.size.top),
+    } : shape;
 }

@@ -18,8 +18,7 @@ export function Toolbar() {
         mut.deleteAll(c.storage.get('shapes'))        
     }, [])
 
-    const addRectangle = useMutation((c) => {
-        console.log('add rectangle')
+    const addRectangle = useMutation((c) => {        
         const id = mut.addRectangle(c.storage.get('shapes'))
         select(id, false)        
     }, [])
