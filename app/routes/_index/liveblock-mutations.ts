@@ -1,12 +1,24 @@
 import { LiveList } from "@liveblocks/client"
 import { v4 as uuid } from 'uuid'
-import { Position, Shape, ShapeType } from "~/types"
+import { resizeShape } from "~/routes/_index/Shapes"
+import { BoundingBox, Position, Shape, ShapeType } from "~/types"
 
 function moveShapes(shapes: LiveList<Shape> | undefined, ids: string[], moveDelta: Position) {
     if (shapes) {
         shapes.forEach((shape, index) => {
             if (ids.includes(shape.id)) {
                 shapes.set(index, { ...shape, top: shape.top + moveDelta.y, left: shape.left + moveDelta.x })
+            }
+        })
+    }
+}
+
+function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], sizeDelta: BoundingBox) {
+    if (shapes) {
+        shapes.forEach((shape, index) => {
+            if (ids.includes(shape.id)) {
+                const resizedShape = resizeShape(shape, {pos: {x: 0, y: 0}, size: sizeDelta})
+                shapes.set(index, resizedShape)
             }
         })
     }
@@ -49,4 +61,4 @@ function findUniqueStartingPosition(shapes: LiveList<Shape>) {
     return { top, left }
 }
 
-export default { moveShapes, deleteShapes, deleteAll, addRectangle, addOval }
+export default { moveShapes, deleteShapes, deleteAll, addRectangle, addOval, resizeShapes }

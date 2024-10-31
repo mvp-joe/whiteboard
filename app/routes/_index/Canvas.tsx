@@ -4,7 +4,7 @@ import { useMutation, useRedo, useStorage, useUndo } from "@liveblocks/react";
 import { LoadingOverlay, Paper } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
 import { useState } from "react";
-import { Delta, Position } from "~/types";
+import { BoundingBox, Delta, Position } from "~/types";
 import mut from './liveblock-mutations';
 import { SelectionBox } from "./SelectionBox";
 import { OvalShape, RectangleShape } from "./Shapes";
@@ -38,6 +38,10 @@ export function Canvas() {
 
     const moveShapes = useMutation((c, ids: string[], moveDelta: Position) => {
         mut.moveShapes(c.storage.get('shapes'), ids, moveDelta)        
+    }, [])
+
+    const resizeShapes = useMutation((c, ids: string[], sizeDelta: BoundingBox) => {
+        mut.resizeShapes(c.storage.get('shapes'), ids, sizeDelta)        
     }, [])
 
     const deleteShapes = useMutation((c, ids: string[]) => {
@@ -96,6 +100,7 @@ export function Canvas() {
 
     function handleDragEnd() {
         moveShapes(selection, moveDelta)
+        resizeShapes(selection, sizeDelta)
         resetMoveDelta()
         resetSizeDelta()
         setIsDragging(false)
