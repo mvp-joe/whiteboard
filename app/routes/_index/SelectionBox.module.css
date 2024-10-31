@@ -1,0 +1,7 @@
+.resizeHandle {
+    background: var(--mantine-color-white);    
+}
+
+.resizeHandle:hover {
+    background: var(--mantine-color-blue-4);
+}

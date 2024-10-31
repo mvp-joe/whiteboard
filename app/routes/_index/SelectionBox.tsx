@@ -4,11 +4,16 @@ import { Box } from "@mantine/core";
 import { resizeShape } from "~/routes/_index/Shapes";
 import { Delta, Shape } from "~/types";
 
+import classes from './SelectionBox.module.css';
+
 type SelectionBoxProps = {
     selectedShapes?: Shape[]
     delta: Delta
     isDragging?: boolean
 }
+
+const RESIZE_HANDLE_SIZE = 10
+const RESIZE_HANDLE_HALF_SIZE = RESIZE_HANDLE_SIZE / 2
 
 export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBoxProps) {
 
@@ -47,8 +52,8 @@ export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBox
                 left,
                 width,
                 height,
-                pointerEvents: 'none'
-            }}
+                pointerEvents: 'none',                
+            }}            
         >
             {!isDragging && (
                 <>
@@ -86,10 +91,11 @@ function ResizeHandle({ location, width, height }: ResizeHandleProps) {
         }
     });
 
-    const left = location === 'top-left' || location === 'bottom-left' || location === 'left' ? -5 : undefined;
+    const left = location === 'top-left' || location === 'bottom-left' || location === 'left' ? -RESIZE_HANDLE_HALF_SIZE : undefined;    
 
     return (
         <Box
+            className={classes.resizeHandle}
             pos="absolute"
             ref={setNodeRef}
             style={{
@@ -98,11 +104,11 @@ function ResizeHandle({ location, width, height }: ResizeHandleProps) {
                 left,
                 bottom: bottom(location, height),
                 right: right(location, width),
-                width: 10,
-                height: 10,
-                cursor: cursor(location),
-            }}
-            bg="blue.4"
+                width: RESIZE_HANDLE_SIZE,
+                height: RESIZE_HANDLE_SIZE,
+                cursor: cursor(location),             
+            }}   
+            bd="1px solid blue.4"            
             {...attributes}
             {...listeners}
         />
@@ -114,14 +120,14 @@ function top(location: Location, height: number) {
         case 'top-left':
         case 'top-right':
         case 'top':
-            return -5
+            return -RESIZE_HANDLE_HALF_SIZE
         case 'bottom-left':
         case 'bottom-right':
         case 'bottom':
             return undefined
         case 'left':
         case 'right':
-            return height / 2 - 5
+            return height / 2 - RESIZE_HANDLE_HALF_SIZE
     }
 }
 
@@ -134,10 +140,10 @@ function bottom(location: Location, height: number) {
         case 'bottom-left':
         case 'bottom-right':
         case 'bottom':
-            return -5
+            return -RESIZE_HANDLE_HALF_SIZE
         case 'left':
         case 'right':
-            return height / 2 - 5
+            return height / 2 - RESIZE_HANDLE_HALF_SIZE
     }
 }
 
@@ -150,10 +156,10 @@ function right(location: Location, width: number) {
         case 'top-right':
         case 'bottom-right':
         case 'right':
-            return -5
+            return -RESIZE_HANDLE_HALF_SIZE
         case 'top':
         case 'bottom':
-            return width / 2 - 5
+            return width / 2 - RESIZE_HANDLE_HALF_SIZE
     }
 }
 
