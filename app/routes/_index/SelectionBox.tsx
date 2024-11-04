@@ -1,21 +1,22 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { Box } from "@mantine/core";
-import { resizeShape } from "~/routes/_index/Shapes";
-import { Delta, Shape } from "~/types";
+import { BoundingBox, Delta, Shape } from "~/types";
 
+import { resizeShape } from "~/routes/_index/shape-utils";
 import classes from './SelectionBox.module.css';
 
 type SelectionBoxProps = {
     selectedShapes?: Shape[]
     delta: Delta
     isDragging?: boolean
+    originalSize: BoundingBox
 }
 
 const RESIZE_HANDLE_SIZE = 10
 const RESIZE_HANDLE_HALF_SIZE = RESIZE_HANDLE_SIZE / 2
 
-export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBoxProps) {
+export function SelectionBox({ selectedShapes, delta, isDragging, originalSize }: SelectionBoxProps) {
 
     if (!selectedShapes || selectedShapes.length === 0) {
         return null
@@ -39,7 +40,7 @@ export function SelectionBox({ selectedShapes, delta, isDragging }: SelectionBox
         left: selectionBox.left,
         width: selectionBox.right - selectionBox.left,
         height: selectionBox.bottom - selectionBox.top
-    }, delta)
+    }, originalSize, delta.scale)
 
     const { top, left, width, height } = resizedShape
 

@@ -1,7 +1,7 @@
 import { LiveList } from "@liveblocks/client"
 import { v4 as uuid } from 'uuid'
-import { resizeShape } from "~/routes/_index/Shapes"
-import { BoundingBox, Position, Shape, ShapeType } from "~/types"
+import { resizeShape } from "~/routes/_index/shape-utils"
+import { BoundingBox, Position, Scale, Shape, ShapeType } from "~/types"
 
 function moveShapes(shapes: LiveList<Shape> | undefined, ids: string[], moveDelta: Position) {
     if (shapes) {
@@ -13,11 +13,11 @@ function moveShapes(shapes: LiveList<Shape> | undefined, ids: string[], moveDelt
     }
 }
 
-function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], sizeDelta: BoundingBox) {    
+function resizeShapes(shapes: LiveList<Shape> | undefined, ids: string[], originalSize: BoundingBox, scaleDelta: Scale) {    
     if (shapes) {
         shapes.forEach((shape, index) => {
             if (ids.includes(shape.id)) {
-                const resizedShape = resizeShape(shape, {pos: {x: 0, y: 0}, size: sizeDelta})
+                const resizedShape = resizeShape(shape, originalSize, scaleDelta)
                 shapes.set(index, resizedShape)
             }
         })
